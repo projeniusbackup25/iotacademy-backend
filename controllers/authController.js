@@ -126,7 +126,7 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetLink = `https://iotacademy.projenius.in//reset-password/${resetToken}`;
 
     console.log("RESET EMAIL:", user.email);
     console.log("RESET LINK:", resetLink);
