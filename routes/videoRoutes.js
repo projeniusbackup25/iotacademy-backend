@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/multer");
 const Video = require("../models/Video");
+const mongoose = require("mongoose");
 const cloudinary = require("../config/cloudinary");
 
 // ==========================
@@ -64,9 +65,14 @@ router.get("/", async (req, res) => {
 // ==========================
 router.delete("/:id", async (req, res) => {
   try {
-    const videoId = req.params.id;
+    const { id } = req.params;
 
-    const video = await Video.findById(videoId);
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid video ID format" });
+    }
+
+    const video = await Video.findById(id);
     if (!video) {
       return res.status(404).json({ message: "Video not found" });
     }
@@ -77,7 +83,7 @@ router.delete("/:id", async (req, res) => {
     });
 
     // Delete from MongoDB
-    await Video.findByIdAndDelete(videoId);
+    await Video.findByIdAndDelete(id);
 
     res.status(200).json({ message: "Video deleted successfully" });
   } catch (err) {
