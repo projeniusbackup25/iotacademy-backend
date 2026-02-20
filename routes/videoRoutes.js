@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/multer");
 const Video = require("../models/Video");
+const cloudinary = require("../config/cloudinary");
 
 // ==========================
 // ADMIN UPLOAD VIDEO
@@ -53,6 +54,34 @@ router.get("/", async (req, res) => {
     res.status(200).json(videos);
   } catch (err) {
     console.error("GET VIDEOS ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ==========================
+// DELETE VIDEO (ADMIN)
+// ==========================
+router.delete("/:id", async (req, res) => {
+  try {
+    const videoId = req.params.id;
+
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Delete from Cloudinary
+    await cloudinary.uploader.destroy(video.cloudinaryId, {
+      resource_type: "video"
+    });
+
+    // Delete from MongoDB
+    await Video.findByIdAndDelete(videoId);
+
+    res.status(200).json({ message: "Video deleted successfully" });
+  } catch (err) {
+    console.error("DELETE VIDEO ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
