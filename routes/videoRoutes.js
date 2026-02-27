@@ -94,6 +94,33 @@ router.get("/", async (req, res) => {
 });
 
 // ==========================
+// USER GET OWN LEVEL VIDEOS (SECURE)
+// ==========================
+router.get(
+  "/user",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== "user") {
+        return res.status(403).json({ message: "User access only" });
+      }
+
+      const userLevel = req.user.workshopKit;
+
+      const videos = await Video.find({
+        category: "iot",
+        subCategory: userLevel,
+      }).sort({ createdAt: -1 });
+
+      res.status(200).json(videos);
+    } catch (err) {
+      console.error("USER VIDEO FETCH ERROR:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// ==========================
 // ADMIN DELETE VIDEO
 // ==========================
 router.delete(
@@ -128,5 +155,7 @@ router.delete(
     }
   }
 );
+
+
 
 module.exports = router;
