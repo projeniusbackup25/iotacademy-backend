@@ -6,13 +6,20 @@ const cloudinary = require("../config/cloudinary");
 const mongoose = require("mongoose");
 const authMiddleware = require("../middleware/authMiddleware");
 
+// ==========================
 // ADMIN CHECK
+// ==========================
 const adminOnly = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (!req.user || req.user.role !== "admin") {
     return res.status(403).json({ message: "Admin access only" });
   }
   next();
 };
+
+// ==========================
+// VALID SUBCATEGORIES
+// ==========================
+const VALID_SUBCATEGORIES = ["beginner", "intermediate", "advanced"];
 
 // ==========================
 // ADMIN UPLOAD VIDEO
@@ -26,23 +33,31 @@ router.post(
     try {
       const { title, subCategory } = req.body;
 
+      if (!title || !subCategory) {
+        return res.status(400).json({ message: "Title and subCategory required" });
+      }
+
+      if (!VALID_SUBCATEGORIES.includes(subCategory.toLowerCase())) {
+        return res.status(400).json({ message: "Invalid subCategory" });
+      }
+
       if (!req.file) {
         return res.status(400).json({ message: "No video uploaded" });
       }
 
       const newVideo = new Video({
         title,
-        category: "web",
-        subCategory,
+        category: "iot", // 🔥 Changed from "web"
+        subCategory: subCategory.toLowerCase(),
         videoUrl: req.file.path,
-        cloudinaryId: req.file.filename
+        cloudinaryId: req.file.filename,
       });
 
       await newVideo.save();
 
       res.status(201).json({
         message: "Video uploaded successfully",
-        video: newVideo
+        video: newVideo,
       });
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
@@ -62,9 +77,13 @@ router.get("/", async (req, res) => {
       return res.status(400).json({ message: "subCategory required" });
     }
 
+    if (!VALID_SUBCATEGORIES.includes(subCategory.toLowerCase())) {
+      return res.status(400).json({ message: "Invalid subCategory" });
+    }
+
     const videos = await Video.find({
-      category: "web",
-      subCategory
+      category: "iot", // 🔥 Changed from "web"
+      subCategory: subCategory.toLowerCase(),
     }).sort({ createdAt: -1 });
 
     res.status(200).json(videos);
@@ -94,10 +113,12 @@ router.delete(
         return res.status(404).json({ message: "Video not found" });
       }
 
+      // Delete from Cloudinary
       await cloudinary.uploader.destroy(video.cloudinaryId, {
-        resource_type: "video"
+        resource_type: "video",
       });
 
+      // Delete from DB
       await Video.findByIdAndDelete(id);
 
       res.status(200).json({ message: "Video deleted successfully" });
