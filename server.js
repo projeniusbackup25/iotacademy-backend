@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/authRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const videoRoutes = require("./routes/videoRoutes"); // ✅ ADD THIS
+const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/videos", videoRoutes); // ✅ ADD THIS LINE
+app.use("/api/orders", orderRoutes);
 
 // TEST ROUTE
 app.get("/", (req, res) => {

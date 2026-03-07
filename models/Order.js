@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema(
     paymentId: {
       type: String,
       required: true,
+      trim: true,
     },
 
     amount: {
@@ -30,7 +31,10 @@ const orderSchema = new mongoose.Schema(
       default: "success",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // gives createdAt & updatedAt automatically
+  }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model("Order", orderSchema); 
+
