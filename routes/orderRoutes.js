@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
+const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 
 /*
@@ -23,7 +24,7 @@ GET ALL ORDERS FOR ADMIN DASHBOARD
 router.get("/admin", authMiddleware, adminOnly, async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("userId", "name email") // get user name & email
+      .populate("userId", "name email")
       .sort({ createdAt: -1 });
 
     const formattedOrders = orders.map((order) => ({
@@ -40,6 +41,27 @@ router.get("/admin", authMiddleware, adminOnly, async (req, res) => {
   } catch (error) {
     console.error("FETCH ORDERS ERROR:", error);
     res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});
+
+/*
+========================================
+ADMIN DASHBOARD STATS
+========================================
+*/
+router.get("/stats", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const totalOrders = await Order.countDocuments();
+
+    const activeStudents = await User.countDocuments();
+
+    res.status(200).json({
+      totalOrders,
+      activeStudents,
+    });
+  } catch (error) {
+    console.error("DASHBOARD STATS ERROR:", error);
+    res.status(500).json({ message: "Failed to fetch dashboard stats" });
   }
 });
 
