@@ -14,8 +14,7 @@ const User = require("../models/User");
 ========================================
 SUBMIT PROJECT
 ========================================
-*/
-router.post(
+*/router.post(
 "/submit",
 authMiddleware,
 upload.single("video"),
@@ -23,7 +22,7 @@ async (req, res) => {
 
   try {
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id); // ✅ FIX HERE
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -35,7 +34,6 @@ async (req, res) => {
       return res.status(400).json({ message: "Video file required" });
     }
 
-    // Check if user is allowed for this level
     if (user.workshopKit !== level) {
       return res.status(403).json({
         message: "You are not allowed to submit this level project"
@@ -43,17 +41,13 @@ async (req, res) => {
     }
 
     const newSubmission = new ProjectSubmission({
-
       userId: user._id,
       userEmail: user.email,
       userPhone: user.phone,
-
       projectTitle,
       level,
-
       videoUrl: req.file.path,
       cloudinaryId: req.file.filename
-
     });
 
     await newSubmission.save();
@@ -76,7 +70,6 @@ async (req, res) => {
 
 }
 );
-
 
 
 /*
