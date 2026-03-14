@@ -5,8 +5,8 @@ const cloudinary = require("./cloudinary");
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "iotacademy/web",   // videos stored under this folder
-    resource_type: "video",     // VERY IMPORTANT
+    folder: "iotacademy/projects",
+    resource_type: "video",
     allowed_formats: ["mp4", "mov", "avi"]
   }
 });
