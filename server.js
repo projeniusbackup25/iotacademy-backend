@@ -9,7 +9,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const videoRoutes = require("./routes/videoRoutes"); // ✅ ADD THIS
 const orderRoutes = require("./routes/orderRoutes");
 const projectRoutes = require("./routes/projectRoutes");
-
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 
